@@ -37,3 +37,11 @@ if prompt := st.chat_input("Chiedimi quello che vuoi..."):
         except Exception as e:
             st.error(f"C'è stato un problema: {e}")
             st.info("Prova a controllare se l'API Key è attiva su Google AI Studio.")
+@st.cache_resource
+def load_model():
+    try:
+        # Tentativo 1: Pro
+        return genai.GenerativeModel('gemini-1.5-pro')
+    except:
+        # Tentativo 2: Flash (vecchia dicitura)
+        return genai.GenerativeModel('gemini-pro')
