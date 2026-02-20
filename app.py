@@ -12,7 +12,7 @@ genai.configure(api_key=GOOGLE_API_KEY)
 @st.cache_resource
 def load_model():
     # Proviamo a usare il flash, che è il più veloce e gratuito
-    return genai.GenerativeModel('gemini-1.5-flash')
+    return genai.GenerativeModel('gemini-1.5-pro')
 
 model = load_model()
 
