@@ -2,19 +2,28 @@ import streamlit as st
 import google.generativeai as genai
 
 st.set_page_config(page_title="La Mia AI Personale", layout="centered")
-st.title("🤖 Benvenuto su DAVE AI")
+st.title("🤖 Benvenuto su DAVE AI by Ebisu")
 
-# La tua chiave (lasciala così se l'avevi già inserita correttamente)
+# La tua chiave
 GOOGLE_API_KEY = "AIzaSyCYAKNVwnzbot26WkjfELHYbR0hSN5gZrE"
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Configurazione automatica del modello
+# Funzione per trovare il modello che funziona per te
 @st.cache_resource
-def load_model():
-    # Proviamo a usare il flash, che è il più veloce e gratuito
-    return genai.GenerativeModel('gemini-1.5-pro')
+def get_working_model():
+    # Lista di nomi che Google usa a seconda dell'account
+    available_names = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+    for name in available_names:
+        try:
+            m = genai.GenerativeModel(name)
+            # Facciamo una mini prova silenziosa
+            m.generate_content("test")
+            return m
+        except:
+            continue
+    return None
 
-model = load_model()
+model = get_working_model()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -29,19 +38,12 @@ if prompt := st.chat_input("Chiedimi quello che vuoi..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        try:
-            # Generazione della risposta
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
-        except Exception as e:
-            st.error(f"C'è stato un problema: {e}")
-            st.info("Prova a controllare se l'API Key è attiva su Google AI Studio.")
-@st.cache_resource
-def load_model():
-    try:
-        # Tentativo 1: Pro
-        return genai.GenerativeModel('gemini-1.5-pro')
-    except:
-        # Tentativo 2: Flash (vecchia dicitura)
-        return genai.GenerativeModel('gemini-pro')
+        if model:
+            try:
+                response = model.generate_content(prompt)
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            except Exception as e:
+                st.error(f"Errore nella risposta: {e}")
+        else:
+            st.error("Nessun modello disponibile. Controlla che la chiave API sia corretta in Google AI Studio.")
