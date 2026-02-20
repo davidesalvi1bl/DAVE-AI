@@ -1,16 +1,11 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 
-# Configurazione Pagina
-st.set_page_config(page_title="La Mia AI", page_icon="🤖")
-st.title("🤖 DAVE AI")
+st.set_page_config(page_title="La Mia AI", layout="centered")
+st.title("🤖 La mia AI Personale")
 
-# La tua chiave (Verificata)
-GOOGLE_API_KEY = "AIzaSyD4uCCEj6IcRcIGdj9OSpK1AvLt6lQ58cY"
-
-# --- MODIFICA FONDAMENTALE QUI ---
-# Forziamo l'uso della versione 'v1' invece della 'v1beta' che dà errore 404
-genai.configure(api_key=GOOGLE_API_KEY, transport='rest') 
+# La tua chiave
+API_KEY = "AIzaSyD4uCCEj6IcRcIGdj9OSpK1AvLt6lQ58cY"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -25,21 +20,23 @@ if prompt := st.chat_input("Scrivi qui..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
+        # URL per la versione STABILE (v1) e non v1beta
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+        
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        
         try:
-            # Specifichiamo il modello senza prefissi strani
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
+            response = requests.post(url, json=payload)
+            result = response.json()
             
-            if response.text:
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            # Estraiamo il testo dalla risposta di Google
+            if "candidates" in result:
+                answer = result["candidates"][0]["content"]["parts"][0]["text"]
+                st.markdown(answer)
+                st.session_state.messages.append({"role": "assistant", "content": answer})
+            else:
+                st.error(f"Errore da Google: {result.get('error', {}).get('message', 'Errore sconosciuto')}")
         except Exception as e:
-            # Se ancora fallisce, proviamo il modello base 'gemini-pro'
-            try:
-                model_alt = genai.GenerativeModel('gemini-pro')
-                response = model_alt.generate_content(prompt)
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-            except:
-                st.error(f"Errore di connessione a Google: {e}")
-                st.info("Attendi 2 minuti: a volte le nuove chiavi hanno un ritardo di attivazione sui server.")
+            st.error(f"Errore di connessione: {e}")
