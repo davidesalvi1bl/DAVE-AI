@@ -8,7 +8,7 @@ st.title("🤖 Benvenuto in DAVE AI")
 # Inserisci qui la tua API Key (la prenderemo dallo Step 1)
 GOOGLE_API_KEY = "AIzaSyCYAKNVwnzbot26WkjfELHYbR0hSN5gZrE"
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('models/gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-pro')
 
 # Gestione della memoria della chat
 if "messages" not in st.session_state:
