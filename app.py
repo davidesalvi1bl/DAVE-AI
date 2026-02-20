@@ -3,12 +3,12 @@ import google.generativeai as genai
 
 # Configurazione della pagina
 st.set_page_config(page_title="La Mia AI Personale", layout="centered")
-st.title("🤖 Benvenuto nella tua AI")
+st.title("🤖 Benvenuto in DAVE AI")
 
 # Inserisci qui la tua API Key (la prenderemo dallo Step 1)
 GOOGLE_API_KEY = "AIzaSyCYAKNVwnzbot26WkjfELHYbR0hSN5gZrE"
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 # Gestione della memoria della chat
 if "messages" not in st.session_state:
